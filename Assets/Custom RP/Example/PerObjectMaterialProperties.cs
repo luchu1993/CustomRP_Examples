@@ -4,12 +4,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PerObjectMaterialProperties : MonoBehaviour
 {
-    private static int baseColorId = Shader.PropertyToID("_BaseColor");
-    
     public Color baseColor = Color.white;
-
-    static MaterialPropertyBlock block;
-
+    [Range(0, 1)]
+    public float cutoff = 0.5f;
+    
     public void OnValidate()
     {
         if (block == null)
@@ -18,6 +16,12 @@ public class PerObjectMaterialProperties : MonoBehaviour
         }
         
         block.SetColor(baseColorId, baseColor);
+        block.SetFloat(cutoffId, cutoff);
         GetComponent<Renderer>().SetPropertyBlock(block);
     }
+
+    private static MaterialPropertyBlock block;
+    private static int baseColorId = Shader.PropertyToID("_BaseColor");
+    private static int cutoffId = Shader.PropertyToID("_Cutoff");
+
 }
