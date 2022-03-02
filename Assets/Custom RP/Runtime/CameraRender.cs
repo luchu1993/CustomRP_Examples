@@ -4,7 +4,7 @@ using UnityEngine.Rendering;
 
 public partial class CameraRender 
 {
-    public void Render(ScriptableRenderContext context, Camera camera)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
     {
         context_ = context;
         camera_ = camera;
@@ -16,7 +16,7 @@ public partial class CameraRender
             return;
 
         Setup();
-        DrawVisibleGeometry();
+        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         DrawUnsupporedShaders();
         DrawGizmos();
         Submit();
@@ -49,12 +49,15 @@ public partial class CameraRender
         ExecuteBuffer();
     }
 
-    void DrawVisibleGeometry()
+    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
         // Draw opaque
         SortingSettings sortingSettings = new SortingSettings(camera_);
         sortingSettings.criteria = SortingCriteria.CommonOpaque;
         DrawingSettings drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
+        drawingSettings.enableDynamicBatching = useDynamicBatching;
+        drawingSettings.enableInstancing = useGPUInstancing;
+        
         FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
         context_.DrawRenderers(cullingResults_, ref drawingSettings, ref filteringSettings);
 

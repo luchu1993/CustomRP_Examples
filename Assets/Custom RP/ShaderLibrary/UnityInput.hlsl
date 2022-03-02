@@ -1,11 +1,6 @@
 ﻿#ifndef _CUSTOM_RP_UNITY_INPUT_
 #define _CUSTOM_RP_UNITY_INPUT_
 
-CBUFFER_START(UnityPerMaterial)
-    float4 _BaseColor;
-CBUFFER_END
-
-
 CBUFFER_START(UnityPerDraw)
     float4x4 unity_ObjectToWorld;
     float4x4 unity_WorldToObject;

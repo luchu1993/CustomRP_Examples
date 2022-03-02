@@ -3,15 +3,38 @@
 
 #include "../ShaderLibrary/Common.hlsl"
 
-float4 UnlitPassVertex(float3 position : POSITION) : SV_Position
+UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
+UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+
+struct Attributes
 {
-    const float3 positionWS = TransformObjectToWorld(position);
-    return TransformWorldToHClip(positionWS);
+    float3 position : POSITION;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+};
+
+struct Varyings
+{
+    float4 positionCS : SV_Position;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+};
+
+Varyings UnlitPassVertex(Attributes input)
+{
+    Varyings output;
+    UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
+    
+    const float3 positionWS = TransformObjectToWorld(input.position);
+    output.positionCS = TransformWorldToHClip(positionWS);
+
+    return output;
 }
 
-float4 UnlitPassFragment() : SV_Target
+float4 UnlitPassFragment(Varyings input) : SV_Target
 {
-    return _BaseColor;
+    UNITY_SETUP_INSTANCE_ID(input);
+    return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
 }
 
 #endif

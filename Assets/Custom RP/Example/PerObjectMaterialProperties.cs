@@ -6,12 +6,11 @@ public class PerObjectMaterialProperties : MonoBehaviour
 {
     private static int baseColorId = Shader.PropertyToID("_BaseColor");
     
-    [SerializeField]
-    Color baseColor = Color.white;
+    public Color baseColor = Color.white;
 
     static MaterialPropertyBlock block;
 
-    private void OnValidate()
+    public void OnValidate()
     {
         if (block == null)
         {
