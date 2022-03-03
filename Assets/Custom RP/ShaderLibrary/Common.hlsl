@@ -12,5 +12,22 @@
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
-    
+
+TEXTURE2D(_BaseMap);
+SAMPLER(sampler_BaseMap);
+
+UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
+    UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
+UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+
+
+#define MAX_DIRECTIONAL_LIGHT_COUNT 4
+CBUFFER_START(_CustomLight)
+    int _DirectionalLightCount;
+    float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHT_COUNT];
+    float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHT_COUNT];
+CBUFFER_END
+
 #endif

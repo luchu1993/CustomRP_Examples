@@ -16,6 +16,7 @@ public partial class CameraRender
             return;
 
         Setup();
+        lighting_.Setup(context, cullingResults_);
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         DrawUnsupporedShaders();
         DrawGizmos();
@@ -51,13 +52,15 @@ public partial class CameraRender
 
     void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
-        // Draw opaque
         SortingSettings sortingSettings = new SortingSettings(camera_);
         sortingSettings.criteria = SortingCriteria.CommonOpaque;
+        
         DrawingSettings drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
         drawingSettings.enableDynamicBatching = useDynamicBatching;
         drawingSettings.enableInstancing = useGPUInstancing;
+        drawingSettings.SetShaderPassName(1, litShaderTagId);
         
+        // Draw opaque
         FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
         context_.DrawRenderers(cullingResults_, ref drawingSettings, ref filteringSettings);
 
@@ -100,7 +103,9 @@ public partial class CameraRender
     CommandBuffer buffer_ = new CommandBuffer() { name = bufferName_ };
 
     CullingResults cullingResults_;
-
+    private Lighting lighting_ = new Lighting();
+    
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+    private static ShaderTagId litShaderTagId = new ShaderTagId("CustomLit");
 
 }
