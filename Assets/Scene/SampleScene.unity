@@ -524,7 +524,7 @@ GameObject:
   - component: {fileID: 1259859258}
   - component: {fileID: 1259859257}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: LitSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -591,7 +591,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1259859256}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1259859260
 Transform:
   m_ObjectHideFlags: 0

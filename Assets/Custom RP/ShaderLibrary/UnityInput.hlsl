@@ -10,6 +10,7 @@ CBUFFER_END
 
 float4x4 unity_MatrixV;
 float4x4 unity_MatrixVP;
+float3 _WorldSpaceCameraPos;
 
 real4 unity_WorldTransformParams;
 
