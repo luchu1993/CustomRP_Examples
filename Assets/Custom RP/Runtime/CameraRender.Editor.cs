@@ -27,7 +27,7 @@ public partial class CameraRender
             errorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
         }
 
-        var drawingSettings = new DrawingSettings(legacyShaderTagIds[0], new SortingSettings(camera_));
+        var drawingSettings = new DrawingSettings(legacyShaderTagIds[0], new SortingSettings(camera));
         for (int i = 1; i < legacyShaderTagIds.Length; i++)
         {
             drawingSettings.SetShaderPassName(i, legacyShaderTagIds[i]);
@@ -36,30 +36,30 @@ public partial class CameraRender
         drawingSettings.overrideMaterial = errorMaterial;
 
         var filteringSettings = FilteringSettings.defaultValue;
-        context_.DrawRenderers(cullingResults_, ref drawingSettings, ref filteringSettings);
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
     partial void DrawGizmos()
     {
         if (Handles.ShouldRenderGizmos())
         {
-            context_.DrawGizmos(camera_, GizmoSubset.PreImageEffects);
-            context_.DrawGizmos(camera_, GizmoSubset.PostImageEffects);
+            context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+            context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
         }
     }
 
     partial void PrepareForSceneWindow()
     {
-        if (camera_.cameraType == CameraType.SceneView)
+        if (camera.cameraType == CameraType.SceneView)
         {
-            ScriptableRenderContext.EmitWorldGeometryForSceneView(camera_);
+            ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
         }
     }
 
     string SamplerName { get; set; }
     partial void PrepareBuffer()
     {
-        buffer_.name = SamplerName = camera_.name;
+        buffer_.name = SamplerName = camera.name;
     }
 
     static Material errorMaterial;

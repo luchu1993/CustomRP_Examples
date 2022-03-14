@@ -4,30 +4,38 @@ using UnityEngine.Rendering;
 
 public partial class CameraRender 
 {
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
+    public void Render(ScriptableRenderContext context, Camera camera, 
+        bool useDynamicBatching, bool useGPUInstancing, ShadowSettings shadowSettings)
     {
-        context_ = context;
-        camera_ = camera;
+        this.context = context;
+        this.camera = camera;
 
         PrepareBuffer();
         PrepareForSceneWindow();
 
-        if (!Culling())
+        if (!Culling(shadowSettings.maxDistance))
             return;
 
+        buffer_.BeginSample(SamplerName);
+        ExecuteBuffer();
+        lighting.Setup(context, cullingResults, shadowSettings);
+        buffer_.EndSample(SamplerName);
+        
         Setup();
-        lighting_.Setup(context, cullingResults_);
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         DrawUnsupporedShaders();
         DrawGizmos();
+        
+        lighting.Cleanup();
         Submit();
     }
 
-    bool Culling()
+    bool Culling(float maxShadowDistance)
     {
-        if (camera_.TryGetCullingParameters(out ScriptableCullingParameters p))
+        if (camera.TryGetCullingParameters(out ScriptableCullingParameters p))
         {
-            cullingResults_ = context_.Cull(ref p);
+            p.shadowDistance = Mathf.Min(maxShadowDistance, camera.farClipPlane);
+            cullingResults = context.Cull(ref p);
             return true;
         }
 
@@ -36,14 +44,14 @@ public partial class CameraRender
 
     void Setup()
     {
-        context_.SetupCameraProperties(camera_);
+        context.SetupCameraProperties(camera);
 
         // Clear Flags
-        CameraClearFlags flags = camera_.clearFlags;
+        CameraClearFlags flags = camera.clearFlags;
         buffer_.ClearRenderTarget(
             flags <= CameraClearFlags.Depth,
             flags == CameraClearFlags.Color,
-            flags == CameraClearFlags.Color ? camera_.backgroundColor.linear : Color.clear
+            flags == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear
         );
         
         buffer_.BeginSample(SamplerName);
@@ -52,7 +60,7 @@ public partial class CameraRender
 
     void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
-        SortingSettings sortingSettings = new SortingSettings(camera_);
+        SortingSettings sortingSettings = new SortingSettings(camera);
         sortingSettings.criteria = SortingCriteria.CommonOpaque;
         
         DrawingSettings drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
@@ -62,16 +70,16 @@ public partial class CameraRender
         
         // Draw opaque
         FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
-        context_.DrawRenderers(cullingResults_, ref drawingSettings, ref filteringSettings);
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 
         // Draw skybox
-        context_.DrawSkybox(camera_);
+        context.DrawSkybox(camera);
 
         // Draw transparent
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
         filteringSettings.renderQueueRange = RenderQueueRange.transparent;
-        context_.DrawRenderers(cullingResults_, ref drawingSettings, ref filteringSettings);
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 
     }
 
@@ -80,12 +88,12 @@ public partial class CameraRender
         buffer_.EndSample(SamplerName);
         
         ExecuteBuffer();
-        context_.Submit();
+        context.Submit();
     }
 
     void ExecuteBuffer()
     {
-        context_.ExecuteCommandBuffer(buffer_);
+        context.ExecuteCommandBuffer(buffer_);
         buffer_.Clear();
     }
 
@@ -96,14 +104,14 @@ public partial class CameraRender
     partial void DrawUnsupporedShaders();
     #endregion
 
-    ScriptableRenderContext context_;
-    Camera camera_;
+    ScriptableRenderContext context;
+    Camera camera;
 
     const string bufferName_ = "Render Camera";
     CommandBuffer buffer_ = new CommandBuffer() { name = bufferName_ };
 
-    CullingResults cullingResults_;
-    private Lighting lighting_ = new Lighting();
+    CullingResults cullingResults;
+    private Lighting lighting = new Lighting();
     
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
     private static ShaderTagId litShaderTagId = new ShaderTagId("CustomLit");

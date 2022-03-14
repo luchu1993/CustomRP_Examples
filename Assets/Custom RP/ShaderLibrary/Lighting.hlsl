@@ -3,7 +3,7 @@
 
 float3 IncomingLighting(Surface surface, Light light)
 {
-    return saturate(dot(surface.normal, light.direction)) * light.color;
+    return saturate(dot(surface.normal, light.direction) * light.attenuation ) * light.color;
 }
 
 float3 GetLighting(Surface surface, BRDF brdf, Light light)
@@ -16,7 +16,7 @@ float3 GetLighting(Surface surface, BRDF brdf)
     float3 color = 0.0f;
     for (int i = 0; i < GetDirectionalLightCount(); ++i)
     {
-        color += GetLighting(surface, brdf, GetDirectionalLight(i));
+        color += GetLighting(surface, brdf, GetDirectionalLight(i, surface));
     }
   
     return color * surface.color;
