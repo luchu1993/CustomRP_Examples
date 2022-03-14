@@ -16,11 +16,6 @@ float OneMinusReflectivity (float metallic)
     return range - metallic * range;
 }
 
-float Square(float v)
-{
-    return v * v;
-}
-
 float SpecularStrength(Surface surface, BRDF brdf, Light light)
 {
     float3 h = SafeNormalize(light.direction + surface.viewDirection);
